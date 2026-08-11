@@ -1,4 +1,12 @@
+using Microsoft.EntityFrameworkCore;
+using Nuxiba.Api.Data;
+
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DB")));
 
 // Add services to the container.
 
