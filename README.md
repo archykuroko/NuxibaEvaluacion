@@ -1,148 +1,616 @@
 # EVALUACIÓN TÉCNICA NUXIBA
 
-Prueba: **DESARROLLADOR JR**
+**Prueba:** DESARROLLADOR JR\
+**Nombre:** Steven Arturo Escárcega Hernández
 
-Deadline: **1 día**
+------------------------------------------------------------------------
 
-Nombre: Steven Arturo Escárcega Hernández
+# Solución desarrollada
 
----
+La solución fue desarrollada utilizando ASP.NET Core Web API con .NET 8,
+Entity Framework Core y SQL Server.
 
-## Clona y crea tu repositorio para la evaluación
+El proyecto implementa los tres ejercicios solicitados:
 
-1. Clona este repositorio en tu máquina local.
-2. Crea un repositorio público en tu cuenta personal de GitHub, BitBucket o Gitlab.
-3. Cambia el origen remoto para que apunte al repositorio público que acabas de crear en tu cuenta.
-4. Coloca tu nombre en este archivo README.md y realiza un push al repositorio remoto.
+1.  API RESTful para la administración de registros de login y logout.
+2.  Consultas SQL para el cálculo de tiempos de sesión.
+3.  Endpoint para generar y descargar un reporte CSV con las horas
+    trabajadas por usuario.
 
----
+------------------------------------------------------------------------
 
-## Instrucciones Generales
+## Tecnologías utilizadas
 
-1. Cada pregunta tiene un valor asignado. Asegúrate de explicar tus respuestas y mostrar las consultas o procedimientos que utilizaste.
-2. Se evaluará la claridad de las explicaciones, el pensamiento crítico, y la eficiencia de las consultas.
-3. Utiliza **SQL Server** para realizar todas las pruebas y asegúrate de que las consultas funcionen correctamente antes de entregar.
-4. Justifica tu enfoque cuando encuentres una pregunta sin una única respuesta correcta.
-5. Configura un Contenedor de **SQL Server con Docker** utilizando los siguientes pasos:
+-   .NET 8
+-   ASP.NET Core Web API
+-   Entity Framework Core 8
+-   SQL Server 2019
+-   Docker
+-   Swagger / OpenAPI
+-   SQL Server Management Studio
+-   Git
 
-### Pasos para ejecutar el contenedor de SQL Server
+------------------------------------------------------------------------
 
-Asegúrate de tener Docker instalado y corriendo en tu máquina. Luego, ejecuta el siguiente comando para levantar un contenedor con SQL Server:
+# Configuración y ejecución
 
-```bash
-docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=YourStrong!Passw0rd'    -p 1433:1433 --name sqlserver -d mcr.microsoft.com/mssql/server:2019-latest
+## 1. Levantar SQL Server con Docker
+
+Es necesario tener Docker instalado y en ejecución.
+
+Ejecutar:
+
+``` powershell
+docker run -e "ACCEPT_EULA=Y" `
+  -e "SA_PASSWORD=YourStrong!Passw0rd" `
+  -p 1433:1433 `
+  --name sqlserver `
+  -d mcr.microsoft.com/mssql/server:2019-latest
 ```
 
-6. Conéctate al servidor de SQL con cualquier herramienta como **SQL Server Management Studio** o **Azure Data Studio** utilizando las siguientes credenciales:
-   - **Servidor**: localhost, puerto 1433
-   - **Usuario**: sa
-   - **Contraseña**: YourStrong!Passw0rd
+Para verificar que el contenedor se encuentra ejecutándose:
 
----
+``` powershell
+docker ps
+```
 
-# Examen Práctico para Desarrollador Junior en .NET 8 y SQL Server
+Si el contenedor ya fue creado previamente y se encuentra detenido:
 
-**Tiempo estimado:** 1 día  
-**Total de puntos:** 100
+``` powershell
+docker start sqlserver
+```
 
----
+------------------------------------------------------------------------
 
-## Instrucciones Generales:
+## 2. Conexión a SQL Server
 
-El examen está compuesto por tres ejercicios prácticos. Sigue las indicaciones en cada uno y asegúrate de entregar el código limpio y funcional.
+Se puede utilizar SQL Server Management Studio (SSMS) o Azure Data
+Studio.
 
-Además, se proporciona un archivo **CCenterRIA.xlsx** para que te bases en la estructura de las tablas y datos proporcionados.
+Datos de conexión utilizados para el contenedor:
 
-[Descargar archivo de ejemplo](CCenterRIA.xlsx)
+-   Servidor: `localhost,1433`
+-   Tipo de autenticación: SQL Server Authentication
+-   Usuario: `sa`
+-   Contraseña: la configurada al crear el contenedor
 
----
+La base de datos utilizada por la aplicación es:
 
-## Ejercicio 1: API RESTful con ASP.NET Core y Entity Framework (40 puntos)
+``` text
+NuxibaDB
+```
 
-**Instrucciones:**  
-Desarrolla una API RESTful con ASP.NET Core y Entity Framework que permita gestionar el acceso de usuarios.
+------------------------------------------------------------------------
 
-1. **Creación de endpoints**:
-   - **GET /logins**: Devuelve todos los registros de logins y logouts de la tabla `ccloglogin`. (5 puntos)
-   - **POST /logins**: Permite registrar un nuevo login/logout. (5 puntos)
-   - **PUT /logins/{id}**: Permite actualizar un registro de login/logout. (5 puntos)
-   - **DELETE /logins/{id}**: Elimina un registro de login/logout. (5 puntos)
+## 3. Configurar la cadena de conexión
 
-2. **Modelo de la entidad**:  
-   Crea el modelo `Login` basado en los datos de la tabla `ccloglogin`:
-   - `User_id` (int)
-   - `Extension` (int)
-   - `TipoMov` (int) → 1 es login, 0 es logout
-   - `fecha` (datetime)
+En `appsettings.json` se utiliza una cadena de conexión con el nombre
+`DB`.
 
-3. **Base de datos**:  
-   Utiliza **Entity Framework Core** para crear la tabla en una base de datos SQL Server basada en este modelo. Aplica migraciones para crear la tabla en la base de datos. (10 puntos)
+Ejemplo:
 
-4. **Validaciones**:  
-   Implementa las validaciones necesarias para asegurar que las fechas sean válidas y que el `User_id` esté presente en la tabla `ccUsers`. Además, maneja errores como intentar registrar un login sin un logout anterior. (10 puntos)
+``` json
+{
+  "ConnectionStrings": {
+    "DB": "Server=localhost,1433;Database=NuxibaDB;User Id=sa;Password=TU_PASSWORD;TrustServerCertificate=True;"
+  }
+}
+```
 
-5. **Pruebas Unitarias** (Opcional):  
-   Se valorará si incluyes pruebas unitarias para los endpoints de tu API utilizando un framework como **xUnit** o **NUnit**. (Puntos extra)
+Para una implementación productiva las credenciales no deberían
+almacenarse directamente en el repositorio; se recomienda utilizar
+variables de entorno, User Secrets o un administrador de secretos.
 
----
+------------------------------------------------------------------------
 
-## Ejercicio 2: Consultas SQL y Optimización (30 puntos)
+## 4. Restaurar dependencias
 
-**Instrucciones:**
+Desde el directorio del proyecto:
 
-Trabaja en SQL Server y realiza las siguientes consultas basadas en la tabla `ccloglogin`:
+``` bash
+dotnet restore
+```
 
-1. **Consulta del usuario que más tiempo ha estado logueado** (10 puntos):
-   - Escribe una consulta que devuelva el usuario que ha pasado más tiempo logueado. Para calcular el tiempo de logueo, empareja cada "login" (TipoMov = 1) con su correspondiente "logout" (TipoMov = 0) y suma el tiempo total por usuario.
+------------------------------------------------------------------------
 
-   Ejemplo de respuesta:  
-   - `User_id`: 92  
-   - Tiempo total: 361 días, 12 horas, 51 minutos, 8 segundos
+## 5. Crear la base de datos mediante Entity Framework Core
 
-2. **Consulta del usuario que menos tiempo ha estado logueado** (10 puntos):
-   - Escribe una consulta similar a la anterior, pero que devuelva el usuario que ha pasado menos tiempo logueado.
+El proyecto incluye las migraciones de Entity Framework Core necesarias.
 
-   Ejemplo de respuesta:  
-   - `User_id`: 90  
-   - Tiempo total: 244 días, 43 minutos, 15 segundos
+Desde Visual Studio se puede utilizar la Consola del Administrador de
+Paquetes:
 
-3. **Promedio de logueo por mes** (10 puntos):
-   - Escribe una consulta que calcule el tiempo promedio de logueo por usuario en cada mes.
+``` powershell
+Update-Database
+```
 
-   Ejemplo de respuesta:  
-   - Usuario 70 en enero 2023: 3 días, 14 horas, 1 minuto, 16 segundos
+Esto crea o actualiza el esquema de `NuxibaDB` de acuerdo con las
+migraciones incluidas en el proyecto.
 
----
+Las tablas utilizadas por la solución son:
 
-## Ejercicio 3: API RESTful para generación de CSV (30 puntos)
+-   `ccloglogin`
+-   `ccUsers`
+-   `ccRIACat_Areas`
 
-**Instrucciones:**
+Los datos proporcionados para la evaluación deben cargarse en estas
+tablas tomando como referencia el archivo `CCenterRIA.xlsx`.
+-----------------------------------------------------------------------
+## 6. Carga de datos iniciales
 
-1. **Generación de CSV**:  
-   Crea un endpoint adicional en tu API que permita generar un archivo CSV con los siguientes datos:
-   - Nombre de usuario (`Login` de la tabla `ccUsers`)
-   - Nombre completo (combinación de `Nombres`, `ApellidoPaterno`, y `ApellidoMaterno` de la tabla `ccUsers`)
-   - Área (tomado de la tabla `ccRIACat_Areas`)
-   - Total de horas trabajadas (basado en los registros de login y logout de la tabla `ccloglogin`)
+El repositorio incluye una carpeta `SQL` con los scripts necesarios para cargar los datos utilizados durante la evaluación.
 
-   El CSV debe calcular el total de horas trabajadas por usuario sumando el tiempo entre logins y logouts.
+La información proporcionada originalmente para la prueba fue preparada en scripts SQL para facilitar la reproducción del entorno y evitar la carga manual de los registros.
 
-2. **Formato y Entrega**:
-   - El CSV debe ser descargable a través del endpoint de la API.
-   - Asegúrate de probar este endpoint utilizando herramientas como **Postman** o **curl** y documenta los pasos en el archivo README.md.
+Dentro de la carpeta se incluyen:
 
----
+- Un script de **seed** para insertar la información inicial en las tablas:
+  - `ccUsers`
+  - `ccRIACat_Areas`
+  - `ccloglogin`
 
-## Entrega
+- Los **queries correspondientes al Ejercicio 2**, utilizados para:
+  - Obtener el usuario con mayor tiempo total logueado.
+  - Obtener el usuario con menor tiempo total logueado.
+  - Calcular el promedio de tiempo de logueo por usuario y mes.
 
-1. Sube tu código a un repositorio en GitHub o Bitbucket y proporciona el enlace para revisión.
-2. El repositorio debe contener las instrucciones necesarias en el archivo **README.md** para:
-   - Levantar el contenedor de SQL Server.
-   - Conectar la base de datos.
-   - Ejecutar la API y sus endpoints.
-   - Descargar el CSV generado.
-3. **Opcional**: Si incluiste pruebas unitarias, indica en el README cómo ejecutarlas.
+### Ejecutar el seed
 
----
+Después de crear la base de datos mediante las migraciones de Entity Framework Core, abrir el script de seed ubicado en la carpeta `SQL` utilizando SQL Server Management Studio (SSMS) o Azure Data Studio.
 
-Este examen evalúa tu capacidad para desarrollar APIs RESTful, realizar consultas avanzadas en SQL Server y generar reportes en formato CSV. Se valorará la organización del código, las mejores prácticas y cualquier documentación adicional que proporciones.
+Verificar que la base seleccionada sea:
+
+```sql
+USE NuxibaDB;
+GO
+```
+
+-----------------------------------------------------------------------
+
+## 7. Ejecutar la API
+
+Desde Visual Studio se puede ejecutar el proyecto utilizando el perfil
+HTTPS.
+
+También puede ejecutarse desde terminal:
+
+``` bash
+dotnet run
+```
+
+En ambiente de desarrollo, Swagger queda disponible en:
+
+``` text
+https://localhost:<puerto>/swagger/index.html
+```
+
+El puerto puede variar de acuerdo con la configuración local del
+proyecto.
+
+------------------------------------------------------------------------
+
+# Ejercicio 1 - API RESTful de logins
+
+La administración de los movimientos de login y logout se encuentra
+implementada en `LoginsController`.
+
+## Endpoints
+
+  Método   Endpoint         Descripción
+  -------- ---------------- -------------------------------------------------
+  GET      `/logins`        Obtiene todos los movimientos de login y logout
+  POST     `/logins`        Registra un nuevo login o logout
+  PUT      `/logins/{id}`   Actualiza un movimiento existente
+  DELETE   `/logins/{id}`   Elimina un movimiento
+  GET      `/logins/{id}`   Obtiene un movimiento por su identificador
+
+### GET /logins
+
+Devuelve los registros existentes de la tabla `ccloglogin`.
+
+Para las consultas de solo lectura se utiliza `AsNoTracking()` para
+evitar el seguimiento innecesario de entidades por parte de Entity
+Framework Core.
+
+### POST /logins
+
+El endpoint recibe un `CreateLoginDTO`, evitando que propiedades
+administradas por la base de datos, como el identificador `Identity`,
+sean proporcionadas directamente por el cliente.
+
+Ejemplo:
+
+``` json
+{
+  "userId": 1,
+  "extension": 100,
+  "tipoMov": 1,
+  "fecha": "2026-08-11T12:00:00"
+}
+```
+
+Se implementaron las siguientes validaciones:
+
+-   `TipoMov` solamente puede contener `1` (login) o `0` (logout).
+-   La fecha debe contener un valor válido.
+-   No se permiten movimientos con fecha futura.
+-   El usuario debe existir previamente en `ccUsers`.
+-   No se permiten dos logins consecutivos para un mismo usuario.
+-   No se permiten dos logouts consecutivos para un mismo usuario.
+-   Un usuario sin movimientos anteriores no puede comenzar con un
+    logout.
+
+### PUT /logins/{id}
+
+Permite modificar un registro existente utilizando `UpdateLoginDTO`.
+
+Las validaciones de negocio se aplican antes de persistir los cambios.
+
+### DELETE /logins/{id}
+
+Elimina el registro identificado por el parámetro `id`.
+
+Cuando el registro solicitado no existe, la API responde con el código
+HTTP correspondiente.
+
+------------------------------------------------------------------------
+
+# Modelo de datos
+
+Para trabajar con Entity Framework Core se definieron los modelos:
+
+``` text
+Models/
+├── Area.cs
+├── Login.cs
+└── User.cs
+```
+
+El acceso a datos se centraliza mediante:
+
+``` text
+Data/
+└── AppDbContext.cs
+```
+
+Los DTO utilizados por la API son:
+
+``` text
+DTOs/
+├── CreateLoginDTO.cs
+├── UpdateLoginDTO.cs
+└── WorkedHoursReportDTO.cs
+```
+
+Para `ccloglogin` se agregó un identificador `Id` como llave primaria
+`Identity`. Esto permite que Entity Framework Core identifique
+individualmente cada registro y que los endpoints `PUT` y `DELETE`
+puedan operar sobre un recurso específico.
+
+------------------------------------------------------------------------
+
+# Ejercicio 2 - Consultas SQL
+
+Para calcular las sesiones se considera:
+
+-   `TipoMov = 1`: login.
+-   `TipoMov = 0`: logout.
+-   Cada login se empareja con el siguiente movimiento cronológico del
+    mismo usuario cuando dicho movimiento es un logout.
+-   Las sesiones válidas se convierten a segundos mediante
+    `DATEDIFF_BIG`.
+-   Posteriormente se agregan los tiempos de acuerdo con cada consulta.
+
+Se utilizaron CTE (`WITH`) y la función de ventana `LEAD()` para obtener
+el siguiente movimiento de cada usuario sin realizar ciclos manuales.
+
+## 1. Usuario con mayor tiempo total logueado
+
+``` sql
+WITH Movimientos AS
+(
+    SELECT
+        User_id,
+        TipoMov,
+        fecha,
+        LEAD(TipoMov) OVER (
+            PARTITION BY User_id
+            ORDER BY fecha
+        ) AS SiguienteTipoMov,
+        LEAD(fecha) OVER (
+            PARTITION BY User_id
+            ORDER BY fecha
+        ) AS FechaLogout
+    FROM dbo.ccloglogin
+),
+Sesiones AS
+(
+    SELECT
+        User_id,
+        DATEDIFF_BIG(SECOND, fecha, FechaLogout) AS SegundosSesion
+    FROM Movimientos
+    WHERE TipoMov = 1
+      AND SiguienteTipoMov = 0
+      AND FechaLogout IS NOT NULL
+),
+Totales AS
+(
+    SELECT
+        User_id,
+        SUM(SegundosSesion) AS SegundosTotales
+    FROM Sesiones
+    GROUP BY User_id
+)
+SELECT TOP 1
+    User_id,
+    SegundosTotales,
+    CONCAT(
+        SegundosTotales / 86400, ' días, ',
+        (SegundosTotales % 86400) / 3600, ' horas, ',
+        (SegundosTotales % 3600) / 60, ' minutos, ',
+        SegundosTotales % 60, ' segundos'
+    ) AS TiempoTotal
+FROM Totales
+ORDER BY SegundosTotales DESC, User_id ASC;
+```
+
+Resultado obtenido con los datos cargados:
+
+``` text
+User_id: 92
+Tiempo total: 361 días, 12 horas, 51 minutos, 7 segundos
+```
+
+------------------------------------------------------------------------
+
+## 2. Usuario con menor tiempo total logueado
+
+Se utiliza el mismo cálculo de sesiones, modificando el orden final:
+
+``` sql
+ORDER BY SegundosTotales ASC, User_id ASC;
+```
+
+Resultado obtenido:
+
+``` text
+User_id: 90
+Tiempo total: 244 días, 0 horas, 43 minutos, 9 segundos
+```
+
+------------------------------------------------------------------------
+
+## 3. Promedio de tiempo de logueo por usuario y mes
+
+``` sql
+WITH Movimientos AS
+(
+    SELECT
+        User_id,
+        TipoMov,
+        fecha,
+        LEAD(TipoMov) OVER (
+            PARTITION BY User_id
+            ORDER BY fecha
+        ) AS SiguienteTipoMov,
+        LEAD(fecha) OVER (
+            PARTITION BY User_id
+            ORDER BY fecha
+        ) AS FechaLogout
+    FROM dbo.ccloglogin
+),
+Sesiones AS
+(
+    SELECT
+        User_id,
+        YEAR(fecha) AS [AÑO],
+        MONTH(fecha) AS [MES],
+        DATEDIFF_BIG(SECOND, fecha, FechaLogout) AS SegundosSesion
+    FROM Movimientos
+    WHERE TipoMov = 1
+      AND SiguienteTipoMov = 0
+      AND FechaLogout IS NOT NULL
+),
+PromedioMensual AS
+(
+    SELECT
+        User_id,
+        [AÑO],
+        [MES],
+        AVG(CAST(SegundosSesion AS DECIMAL(19, 2))) AS PromedioSegundos
+    FROM Sesiones
+    GROUP BY User_id, [AÑO], [MES]
+)
+SELECT
+    User_id,
+    [AÑO],
+    [MES],
+    PromedioSegundos,
+    CONCAT(
+        CAST(PromedioSegundos AS BIGINT) / 86400, ' días, ',
+        (CAST(PromedioSegundos AS BIGINT) % 86400) / 3600, ' horas, ',
+        (CAST(PromedioSegundos AS BIGINT) % 3600) / 60, ' minutos, ',
+        CAST(PromedioSegundos AS BIGINT) % 60, ' segundos'
+    ) AS TiempoPromedio
+FROM PromedioMensual
+ORDER BY User_id, [AÑO], [MES];
+```
+
+------------------------------------------------------------------------
+
+# Ejercicio 3 - Generación del reporte CSV
+
+La generación del reporte se encuentra implementada en
+`ReportsController`.
+
+## Endpoint
+
+``` http
+GET /reports/worked-hours/csv
+```
+
+El archivo generado contiene las columnas:
+
+``` text
+Login
+NombreCompleto
+Area
+TotalHoras
+```
+
+El nombre completo se construye a partir de:
+
+-   `Nombres`
+-   `ApellidoPaterno`
+-   `ApellidoMaterno`
+
+El total de horas se obtiene emparejando cronológicamente los
+movimientos de cada usuario y acumulando la diferencia entre cada login
+seguido de su logout.
+
+El archivo generado se devuelve como:
+
+``` text
+reporte-horas-trabajadas.csv
+```
+
+con el tipo de contenido:
+
+``` text
+text/csv
+```
+
+## Descargar mediante Swagger
+
+1.  Ejecutar la API.
+2.  Abrir `/swagger/index.html`.
+3.  Seleccionar `GET /reports/worked-hours/csv`.
+4.  Presionar **Try it out**.
+5.  Presionar **Execute**.
+6.  Descargar o guardar el archivo devuelto por la respuesta.
+
+## Probar mediante curl
+
+Con la API ejecutándose, sustituir `<puerto>` por el puerto HTTPS
+mostrado por la aplicación:
+
+``` bash
+curl -k "https://localhost:<puerto>/reports/worked-hours/csv" -o reporte-horas-trabajadas.csv
+```
+
+El parámetro `-o` guarda la respuesta directamente como archivo.
+
+## Consideraciones del CSV
+
+Para generar el archivo se utiliza `StringBuilder`.
+
+Los valores de texto son escapados cuando contienen comas, comillas o
+saltos de línea para conservar un CSV válido.
+
+`TotalHoras` utiliza `CultureInfo.InvariantCulture` para garantizar el
+uso del punto como separador decimal y evitar conflictos con la coma
+utilizada para separar las columnas del archivo.
+
+------------------------------------------------------------------------
+
+# Consideraciones sobre los datos
+
+Durante la revisión de los datos proporcionados se identificó que el
+catálogo de áreas contiene valores repetidos para un mismo `IDArea`.
+
+Debido a que no existe información adicional que permita determinar de
+alguna manera cuál de las áreas duplicadas corresponde a cada
+usuario, para la generación del CSV se toma la primera coincidencia
+encontrada para dicho identificador.
+
+Esta decisión se mantiene de forma determinística y evita inferir
+información que no se encuentra disponible en el conjunto de datos
+proporcionado.
+
+------------------------------------------------------------------------
+
+# Estructura del proyecto
+
+``` text
+Nuxiba.Api/
+├── Controllers/
+│   ├── LoginsController.cs
+│   └── ReportsController.cs
+├── Data/
+│   └── AppDbContext.cs
+├── DTOs/
+│   ├── CreateLoginDTO.cs
+│   ├── UpdateLoginDTO.cs
+│   └── WorkedHoursReportDTO.cs
+├── Migrations/
+│   ├── InitialCreate
+│   ├── AddUsersAndAreas
+│   └── FixAreaNameColumn
+├── Models/
+│   ├── Area.cs
+│   ├── Login.cs
+│   └── User.cs
+├── appsettings.json
+├── Nuxiba.Api.http
+└── Program.cs
+```
+
+------------------------------------------------------------------------
+
+# Decisiones técnicas
+
+## Uso de DTO
+
+Los endpoints de escritura utilizan DTO para separar el contrato HTTP de
+las entidades persistidas y evitar que el cliente controle propiedades
+generadas por SQL Server.
+
+## AsNoTracking
+
+Se utiliza `AsNoTracking()` en consultas de solo lectura para evitar el
+seguimiento de entidades cuando no es necesario modificar los
+resultados.
+
+## Cálculo de sesiones
+
+Una sesión válida está formada por un movimiento `TipoMov = 1` seguido
+cronológicamente por un movimiento `TipoMov = 0` del mismo usuario.
+
+En SQL este comportamiento se implementa mediante `LEAD()`. Para el
+reporte CSV se reproduce la misma regla desde la API agrupando y
+ordenando los movimientos por usuario.
+
+## Migraciones
+
+El esquema se administra mediante migraciones de Entity Framework Core,
+lo que permite reproducir la estructura de la base de datos a partir del
+código del proyecto.
+
+------------------------------------------------------------------------
+
+# Ejecución rápida
+
+Una vez configurada la cadena de conexión y cargados los datos:
+
+``` bash
+dotnet restore
+dotnet run
+```
+
+Después se puede utilizar Swagger para probar:
+
+``` text
+GET    /logins
+GET    /logins/{id}
+POST   /logins
+PUT    /logins/{id}
+DELETE /logins/{id}
+
+GET    /reports/worked-hours/csv
+```
+
+------------------------------------------------------------------------
+
+# Autor
+
+**Steven Arturo Escárcega Hernández**
